@@ -24,6 +24,9 @@ import javax.swing.Timer;
 public class Board extends JPanel implements ActionListener {
 
     private final boolean NEURAL_NETWORK = true;
+    private boolean initBrain = false;
+
+    private GeneticAlgorithm brain;
 
     private final int B_WIDTH = 300;
     private final int B_HEIGHT = 300;
@@ -50,8 +53,10 @@ public class Board extends JPanel implements ActionListener {
     private Image apple;
     private Image head;
 
-    public Board() {
+    private double[] currentOutput;
+    private long start;
 
+    public Board() {
         addKeyListener(new TAdapter());
         setBackground(Color.black);
         setFocusable(true);
@@ -83,8 +88,8 @@ public class Board extends JPanel implements ActionListener {
         }
 
         locateApple();
-
         timer = new Timer(DELAY, this);
+        start = System.currentTimeMillis();
         timer.start();
     }
 
@@ -98,7 +103,6 @@ public class Board extends JPanel implements ActionListener {
     private void doDrawing(Graphics g) {
 
         if (inGame) {
-
             g.drawImage(apple, apple_x, apple_y, this);
 
             for (int z = 0; z < dots; z++) {
@@ -126,6 +130,12 @@ public class Board extends JPanel implements ActionListener {
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
+
+        brain.currentGenFitness((int)(System.currentTimeMillis() - start), dots);
+        brain.nextGeneration();
+        System.out.println(brain.printStats());
+        inGame = true;
+        initGame();
     }
 
     private void checkApple() {
@@ -200,13 +210,45 @@ public class Board extends JPanel implements ActionListener {
         apple_y = ((r * DOT_SIZE));
     }
 
+    private void think(){
+        double nextToWall = 0.0;
+        if(x[0] < DOT_SIZE*2 || x[0] > B_WIDTH - DOT_SIZE*2 || y[0] < DOT_SIZE*2 || y[0] > B_HEIGHT - DOT_SIZE*2)
+            nextToWall = 1.0;
+        double[] inputs = {Math.abs(x[0]-apple_x), Math.abs(y[0]-apple_y), nextToWall};
+        if(!initBrain) {
+            brain = new GeneticAlgorithm(inputs);
+            initBrain = true;
+        }
+        currentOutput = brain.updateCurrentGen(inputs);
+        if(currentOutput[0] >= currentOutput[1] && currentOutput[0] > currentOutput[2] && currentOutput[0] > currentOutput[3] && !rightDirection){
+            leftDirection = true;
+            upDirection = false;
+            downDirection = false;
+        }
+        if(currentOutput[1] >= currentOutput[0] && currentOutput[1] > currentOutput[2] && currentOutput[1] > currentOutput[3] && !leftDirection){
+            rightDirection = true;
+            upDirection = false;
+            downDirection = false;
+        }
+        if(currentOutput[2] >= currentOutput[0] && currentOutput[2] > currentOutput[1] && currentOutput[2] > currentOutput[3] && !downDirection){
+            upDirection = true;
+            rightDirection = false;
+            leftDirection = false;
+        }
+        if(currentOutput[3] >= currentOutput[0] && currentOutput[3] > currentOutput[1] && currentOutput[3] > currentOutput[2] && !upDirection){
+            downDirection = true;
+            rightDirection = false;
+            leftDirection = false;
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if (inGame) {
-
             checkApple();
             checkCollision();
+            think();
             move();
         }
 
