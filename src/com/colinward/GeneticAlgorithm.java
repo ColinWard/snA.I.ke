@@ -13,7 +13,7 @@ public class GeneticAlgorithm {
     public final double MUTATION = 0.15;
 
     public final int NUM_INPUT = 4;
-    public final int NUM_HIDDEN = 16;
+    public final int NUM_HIDDEN = 32;
     public final int NUM_OUTPUT = 4;
 
     public Random rand;
@@ -108,12 +108,20 @@ public class GeneticAlgorithm {
         NeuralNet n2 = roulette();
         NeuralNet n3 = roulette();
         NeuralNet n4 = roulette();
+        NeuralNet n5 = roulette();
+        NeuralNet n6 = roulette();
+        NeuralNet n7 = roulette();
+        NeuralNet n8 = roulette();
 
         ArrayList<NeuralNet> eliteGeneration = new ArrayList<NeuralNet>();
         eliteGeneration.add(n1);
         eliteGeneration.add(n2);
         eliteGeneration.add(n3);
         eliteGeneration.add(n4);
+        eliteGeneration.add(n5);
+        eliteGeneration.add(n6);
+        eliteGeneration.add(n7);
+        eliteGeneration.add(n8);
 
         genePool = eliteGeneration;
     }

@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -28,12 +29,12 @@ public class Board extends JPanel implements ActionListener {
 
     private GeneticAlgorithm brain;
 
-    private final int B_WIDTH = 300;
-    private final int B_HEIGHT = 300;
+    private final int B_WIDTH = 800;
+    private final int B_HEIGHT = 800;
     private final int DOT_SIZE = 10;
-    private final int ALL_DOTS = 900;
-    private final int RAND_POS = 26;
-    private final int LAZY_CONSTANT = 1000;
+    private final int ALL_DOTS = 6400;
+    private final int RAND_POS = 70;
+    private final int LAZY_CONSTANT = 300;
     private int DELAY = 140;
 
     private final int x[] = new int[ALL_DOTS];
@@ -84,13 +85,15 @@ public class Board extends JPanel implements ActionListener {
     private void initGame() {
 
         dots = 3;
-
+        Random rand = new Random();
+        int pos = rand.nextInt(RAND_POS) *10;
         for (int z = 0; z < dots; z++) {
-            x[z] = 50 - z * 10;
-            y[z] = 50;
+            x[z] = pos - z * 10;
+            y[z] = pos;
         }
 
         locateApple();
+        lazyCounter = 0;
         timer = new Timer(DELAY, this);
         start = System.currentTimeMillis();
         timer.start();
@@ -138,6 +141,7 @@ public class Board extends JPanel implements ActionListener {
         brain.nextGeneration();
         System.out.println(brain.printStats());
         inGame = true;
+        lazy = false;
         initGame();
     }
 
@@ -227,22 +231,22 @@ public class Board extends JPanel implements ActionListener {
             initBrain = true;
         }
         currentOutput = brain.updateCurrentGen(inputs);
-        if(currentOutput[0] >= currentOutput[1] && currentOutput[0] > currentOutput[2] && currentOutput[0] > currentOutput[3] && !rightDirection){
+        if(currentOutput[0] >= currentOutput[1] && currentOutput[0] >= currentOutput[2] && currentOutput[0] >= currentOutput[3] && !rightDirection){
             leftDirection = true;
             upDirection = false;
             downDirection = false;
         }
-        else if(currentOutput[1] >= currentOutput[0] && currentOutput[1] > currentOutput[2] && currentOutput[1] > currentOutput[3] && !leftDirection){
+        else if(currentOutput[1] >= currentOutput[0] && currentOutput[1] >= currentOutput[2] && currentOutput[1] >= currentOutput[3] && !leftDirection){
             rightDirection = true;
             upDirection = false;
             downDirection = false;
         }
-        else if(currentOutput[2] >= currentOutput[0] && currentOutput[2] > currentOutput[1] && currentOutput[2] > currentOutput[3] && !downDirection){
+        else if(currentOutput[2] >= currentOutput[0] && currentOutput[2] > currentOutput[1] && currentOutput[2] >= currentOutput[3] && !downDirection){
             upDirection = true;
             rightDirection = false;
             leftDirection = false;
         }
-        else if(currentOutput[3] >= currentOutput[0] && currentOutput[3] > currentOutput[1] && currentOutput[3] > currentOutput[2] && !upDirection){
+        else if(currentOutput[3] >= currentOutput[0] && currentOutput[3] >= currentOutput[1] && currentOutput[3] >= currentOutput[2] && !upDirection){
             downDirection = true;
             rightDirection = false;
             leftDirection = false;
@@ -274,30 +278,6 @@ public class Board extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
 
             int key = e.getKeyCode();
-
-            if ((key == KeyEvent.VK_LEFT) && (!rightDirection)) {
-                leftDirection = true;
-                upDirection = false;
-                downDirection = false;
-            }
-
-            if ((key == KeyEvent.VK_RIGHT) && (!leftDirection)) {
-                rightDirection = true;
-                upDirection = false;
-                downDirection = false;
-            }
-
-            if ((key == KeyEvent.VK_UP) && (!downDirection)) {
-                upDirection = true;
-                rightDirection = false;
-                leftDirection = false;
-            }
-
-            if ((key == KeyEvent.VK_DOWN) && (!upDirection)) {
-                downDirection = true;
-                rightDirection = false;
-                leftDirection = false;
-            }
 
             if (key == KeyEvent.VK_R) {
                 inGame = true;
