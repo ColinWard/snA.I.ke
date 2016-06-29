@@ -10,15 +10,15 @@ public class GeneticAlgorithm {
     ArrayList<NeuralNet> genePool;
     NeuralNet currentGeneration;
     public final double CROSSOVER = 0.7;
-    public final double MUTATION = 0.01;
+    public final double MUTATION = 0.15;
 
-    public final int NUM_INPUT = 3;
+    public final int NUM_INPUT = 4;
     public final int NUM_HIDDEN = 16;
     public final int NUM_OUTPUT = 4;
 
     public Random rand;
     public int generation;
-    public int averageFitness = 1;
+    public double averageFitness = 1;
 
     public NeuralNet chosenOne1;
     public NeuralNet chosenOne2;
@@ -34,7 +34,7 @@ public class GeneticAlgorithm {
     }
 
     public NeuralNet nextGeneration(){
-        if(genePool.size() > 50)
+        if(genePool.size() > 100)
             commitGenocide();
         NeuralNet child1 = roulette();
         NeuralNet child2 = roulette();
@@ -102,10 +102,19 @@ public class GeneticAlgorithm {
 
     }
 
+
     public void commitGenocide(){
-        for(int i = 0; i < genePool.size(); i++){
-            if(genePool.get(i).getFitness() < 50)
-                genePool.remove(i);
-        }
+        NeuralNet n1 = roulette();
+        NeuralNet n2 = roulette();
+        NeuralNet n3 = roulette();
+        NeuralNet n4 = roulette();
+
+        ArrayList<NeuralNet> eliteGeneration = new ArrayList<NeuralNet>();
+        eliteGeneration.add(n1);
+        eliteGeneration.add(n2);
+        eliteGeneration.add(n3);
+        eliteGeneration.add(n4);
+
+        genePool = eliteGeneration;
     }
 }

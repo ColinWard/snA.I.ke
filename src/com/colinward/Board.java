@@ -33,6 +33,7 @@ public class Board extends JPanel implements ActionListener {
     private final int DOT_SIZE = 10;
     private final int ALL_DOTS = 900;
     private final int RAND_POS = 26;
+    private final int LAZY_CONSTANT = 1000;
     private int DELAY = 140;
 
     private final int x[] = new int[ALL_DOTS];
@@ -41,12 +42,14 @@ public class Board extends JPanel implements ActionListener {
     private int dots;
     private int apple_x;
     private int apple_y;
+    private int lazyCounter = 0;
 
     private boolean leftDirection = false;
     private boolean rightDirection = true;
     private boolean upDirection = false;
     private boolean downDirection = false;
     private boolean inGame = true;
+    private boolean lazy = false;
 
     private Timer timer;
     private Image ball;
@@ -141,7 +144,8 @@ public class Board extends JPanel implements ActionListener {
     private void checkApple() {
 
         if ((x[0] == apple_x) && (y[0] == apple_y)) {
-
+            lazy = false;
+            lazyCounter = 0;
             dots++;
             locateApple();
         }
@@ -211,11 +215,13 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void think(){
+        lazyCounter++;
         double nextToWall = 0.0;
         if(x[0] <= DOT_SIZE || x[0] >= B_WIDTH - DOT_SIZE || y[0] <= DOT_SIZE || y[0] >= B_HEIGHT - DOT_SIZE) {
             nextToWall = 1.0;
         }
-        double[] inputs = {(x[0]-apple_x), (y[0]-apple_y), nextToWall};
+        double distance = Math.sqrt(Math.pow(apple_x - x[0],2) + Math.pow(apple_y - y[0], 2));
+        double[] inputs = {distance, x[0] - apple_x, y[0] - apple_y, nextToWall};
         if(!initBrain) {
             brain = new GeneticAlgorithm(inputs);
             initBrain = true;
@@ -226,20 +232,26 @@ public class Board extends JPanel implements ActionListener {
             upDirection = false;
             downDirection = false;
         }
-        if(currentOutput[1] >= currentOutput[0] && currentOutput[1] > currentOutput[2] && currentOutput[1] > currentOutput[3] && !leftDirection){
+        else if(currentOutput[1] >= currentOutput[0] && currentOutput[1] > currentOutput[2] && currentOutput[1] > currentOutput[3] && !leftDirection){
             rightDirection = true;
             upDirection = false;
             downDirection = false;
         }
-        if(currentOutput[2] >= currentOutput[0] && currentOutput[2] > currentOutput[1] && currentOutput[2] > currentOutput[3] && !downDirection){
+        else if(currentOutput[2] >= currentOutput[0] && currentOutput[2] > currentOutput[1] && currentOutput[2] > currentOutput[3] && !downDirection){
             upDirection = true;
             rightDirection = false;
             leftDirection = false;
         }
-        if(currentOutput[3] >= currentOutput[0] && currentOutput[3] > currentOutput[1] && currentOutput[3] > currentOutput[2] && !upDirection){
+        else if(currentOutput[3] >= currentOutput[0] && currentOutput[3] > currentOutput[1] && currentOutput[3] > currentOutput[2] && !upDirection){
             downDirection = true;
             rightDirection = false;
             leftDirection = false;
+        }
+        if(lazyCounter > LAZY_CONSTANT)
+            lazy = true;
+        if(lazy) {
+            inGame = false;
+            System.out.println("LAZY!");
         }
     }
 

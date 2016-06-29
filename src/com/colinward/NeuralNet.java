@@ -39,7 +39,7 @@ public class NeuralNet {
         finalOutput = copy.finalOutput.clone();
 
         fitness = copy.fitness;
-        setup = true;
+        setup = false;
     }
 
 
@@ -107,6 +107,7 @@ public class NeuralNet {
 
     public void calcFitness(int timeInMillis, int numPoints){
         fitness = 1;
-        fitness += numPoints*50;
+        fitness -= timeInMillis/500;
+        fitness += numPoints*20;
     }
 }
