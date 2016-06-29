@@ -25,9 +25,23 @@ public class NeuralNet {
         outputInputs = new double[numHidden];
         finalOutput = new double[numOutput];
         updateLayers(inputs);
-        fitness = 0;
+        fitness = 1;
         setup = false;
     }
+
+    public NeuralNet(NeuralNet copy){
+        inputLayer = copy.inputLayer.clone();
+        hiddenLayer = copy.hiddenLayer.clone();
+        outputLayer = copy.outputLayer.clone();
+        initInputs = copy.initInputs.clone();
+        hiddenInputs = copy.hiddenInputs.clone();
+        outputInputs = copy.outputInputs.clone();
+        finalOutput = copy.finalOutput.clone();
+
+        fitness = copy.fitness;
+        setup = true;
+    }
+
 
     public void updateLayers(double[] inputs) {
         //input layer
@@ -58,13 +72,41 @@ public class NeuralNet {
         return finalOutput;
     }
 
+    public void goGoGadgetMutate(double chance){
+        for(int i = 0; i < inputLayer.length; i++)
+            inputLayer[i].mutate(chance);
+        for(int i = 0; i < hiddenLayer.length; i++)
+            hiddenLayer[i].mutate(chance);
+        for(int i = 0; i < outputLayer.length; i++)
+            outputLayer[i].mutate(chance);
+    }
+
+    public void goGoGadgetCrossover(Neuron[] newInfo){
+        for(int i = 0; i < newInfo.length; i++){
+            hiddenLayer[i] = newInfo[i];
+        }
+    }
+
+    public Neuron[] getDNA(double crossoverChance){
+        Neuron[] dna = new Neuron[(int)((hiddenLayer.length)*crossoverChance)];
+        for(int i = 0; i < dna.length; i++){
+            dna[i] = hiddenLayer[i];
+        }
+        return dna;
+    }
+
+
     public double getFitness(){
         return fitness;
     }
 
+    public void setFitness(double fit){
+        fitness = fit;
+    }
+
+
     public void calcFitness(int timeInMillis, int numPoints){
-        fitness = 0;
-        fitness += timeInMillis/10000;
-        fitness += numPoints*20;
+        fitness = 1;
+        fitness += numPoints*50;
     }
 }

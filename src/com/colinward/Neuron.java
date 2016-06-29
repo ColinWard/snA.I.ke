@@ -41,6 +41,23 @@ public class Neuron {
         output = tempOutput;
     }
 
+    public void mutate(double chance){
+        Random rand = new Random();
+        for(int i = 0; i < weights.length; i++){
+            if(rand.nextDouble() <= chance*4)
+                weights[i] = (2*rand.nextDouble())-1;
+        }
+    }
+
+    public double[] getWeights(){
+        return weights;
+    }
+
+    public void setWeights(double[] w){
+        weights = w;
+    }
+
+
     public void initWeights(){
         Random rand = new Random();
         for(int i = 0; i < weights.length; i++){

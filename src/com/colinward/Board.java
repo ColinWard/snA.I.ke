@@ -32,7 +32,7 @@ public class Board extends JPanel implements ActionListener {
     private final int B_HEIGHT = 300;
     private final int DOT_SIZE = 10;
     private final int ALL_DOTS = 900;
-    private final int RAND_POS = 29;
+    private final int RAND_POS = 26;
     private int DELAY = 140;
 
     private final int x[] = new int[ALL_DOTS];
@@ -130,8 +130,8 @@ public class Board extends JPanel implements ActionListener {
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
-
-        brain.currentGenFitness((int)(System.currentTimeMillis() - start), dots);
+        int timeInMillis = (int)(System.currentTimeMillis() - start);
+        brain.currentGenFitness(timeInMillis, dots - 3);
         brain.nextGeneration();
         System.out.println(brain.printStats());
         inGame = true;
@@ -203,7 +203,7 @@ public class Board extends JPanel implements ActionListener {
 
     private void locateApple() {
 
-        int r = (int) (Math.random() * RAND_POS);
+        int r = (int) (Math.random() * RAND_POS)+(B_WIDTH/10 - RAND_POS)/2;
         apple_x = ((r * DOT_SIZE));
 
         r = (int) (Math.random() * RAND_POS);
@@ -212,9 +212,10 @@ public class Board extends JPanel implements ActionListener {
 
     private void think(){
         double nextToWall = 0.0;
-        if(x[0] < DOT_SIZE*2 || x[0] > B_WIDTH - DOT_SIZE*2 || y[0] < DOT_SIZE*2 || y[0] > B_HEIGHT - DOT_SIZE*2)
+        if(x[0] <= DOT_SIZE || x[0] >= B_WIDTH - DOT_SIZE || y[0] <= DOT_SIZE || y[0] >= B_HEIGHT - DOT_SIZE) {
             nextToWall = 1.0;
-        double[] inputs = {Math.abs(x[0]-apple_x), Math.abs(y[0]-apple_y), nextToWall};
+        }
+        double[] inputs = {(x[0]-apple_x), (y[0]-apple_y), nextToWall};
         if(!initBrain) {
             brain = new GeneticAlgorithm(inputs);
             initBrain = true;
@@ -286,12 +287,13 @@ public class Board extends JPanel implements ActionListener {
                 leftDirection = false;
             }
 
-            if ((key == KeyEvent.VK_R) && (!inGame)) {
+            if (key == KeyEvent.VK_R) {
                 inGame = true;
+                timer.stop();
                 initGame();
             }
 
-            if (key == KeyEvent.VK_W && DELAY > 50) {
+            if (key == KeyEvent.VK_W && DELAY > 10) {
                 DELAY -= 10;
                 timer.setDelay(DELAY);
             }
